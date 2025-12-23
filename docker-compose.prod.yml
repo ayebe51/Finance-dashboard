@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # API Service
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: finance-dashboard-api-prod
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=file:./prod.db # In real prod, this would be a Postgres connection string
+      - JWT_SECRET=production_secret_key_change_me
+    volumes:
+      - ./apps/api/prisma:/app/apps/api/prisma # Persistence for SQLite (demo only)
+    restart: always
+
+  # Nginx Reverse Proxy (Frontend + Gateway)
+  # We use a standard Nginx image and mount the build artifacts + config
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      # We rely on the Dockerfile to produce a build. 
+      # Actually, usually for prod we interpret the Dockerfile as a multi-stage that ends with Nginx, 
+      # OR we use a separate Nginx container that mounts the build output.
+      # Let's check the current Web Dockerfile first.
+    container_name: finance-dashboard-web-prod
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    restart: always
