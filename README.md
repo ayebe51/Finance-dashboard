@@ -56,11 +56,22 @@ The easiest way to run this application is using Docker Compose.
 
 ## 📸 Screenshots
 
-*(Placeholder for screenshots - Add actual screenshots here)*
-
 | Dashboard | Transactions |
 |:---:|:---:|
-| ![Dashboard Mockup](https://via.placeholder.com/600x400?text=Dashboard+View) | ![Transactions Mockup](https://via.placeholder.com/600x400?text=Transaction+List) |
+| ![Dashboard View](docs/images/dashboard.png) | ![Transaction List](docs/images/transactions.png) |
+
+> **Note:** See `docs/images/` for full resolution screenshots.
+
+## 🚀 Deployment
+
+We have a detailed [Deployment Guide](docs/DEPLOYMENT.md) supporting:
+*   **Backend & DB:** Render.com (Free Tier)
+*   **Frontend:** Vercel (Free Tier)
+
+### Quick Links
+*   [Deploy Backend](https://render.com)
+*   [Deploy Frontend](https://vercel.com)
+
 
 ## 🧪 Testing
 
