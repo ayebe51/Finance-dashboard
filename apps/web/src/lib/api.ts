@@ -6,6 +6,9 @@ const apiInstance = axios.create({
         : '/api',
 });
 
+console.log('API Base URL:', apiInstance.defaults.baseURL);
+console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
+
 // Add a request interceptor
 apiInstance.interceptors.request.use(
     (config) => {

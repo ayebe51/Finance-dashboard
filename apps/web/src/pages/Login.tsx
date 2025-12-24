@@ -36,6 +36,7 @@ const Login: React.FC = () => {
                     <p className="mt-2 text-sm text-gray-600 dark:text-text-secondary">
                         Atau <Link to="/register" className="font-medium text-primary hover:text-primary-hover">buat akun baru</Link>
                     </p>
+                    <p className="mt-1 text-xs text-gray-400">v1.2-beta (Debug Mode)</p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     {error && (
