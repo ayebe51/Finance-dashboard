@@ -101,6 +101,34 @@ router.get('/', auth, async (req: any, res) => {
             percentage: totalExpense > 0 ? Math.round((item.value / totalExpense) * 100) : 0
         }));
 
+        // --- 4. Monthly Stats (Last 6 Months) for Charts ---
+        const monthlyStats = [];
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const startStr = new Date(date.getFullYear(), date.getMonth(), 1);
+            const endStr = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            
+            const monthTransactions = await prisma.transaction.findMany({
+                where: {
+                    userId,
+                    date: {
+                        gte: startStr,
+                        lte: endStr
+                    }
+                }
+            });
+            
+            const income = monthTransactions
+                .filter(t => t.type === 'INCOME')
+                .reduce((sum, t) => sum + t.amount, 0);
+            const expense = monthTransactions
+                .filter(t => t.type === 'EXPENSE')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const monthName = date.toLocaleString('id-ID', { month: 'short' });
+            monthlyStats.push({ name: monthName, income, expense });
+        }
+
         res.json({
             stats: {
                 income: current.income,
@@ -111,7 +139,8 @@ router.get('/', auth, async (req: any, res) => {
                 balanceDiff: getPercentDiff(current.balance, last.balance)
             },
             recentTransactions,
-            expenseBreakdown: finalBreakdown
+            expenseBreakdown: finalBreakdown,
+            monthlyStats
         });
 
     } catch (error) {
