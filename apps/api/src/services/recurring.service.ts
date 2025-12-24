@@ -68,7 +68,13 @@ const calculateNextRun = (currentRun: Date, interval: string): Date => {
 };
 
 // Initialize Cron Job (Runs every hour)
+// Only run if NOT in Vercel environment (Serverless)
 export const initRecurringScheduler = () => {
+  if (process.env.VERCEL) {
+    console.log('Running in Vercel mode. Internal scheduler disabled in favor of Vercel Cron.');
+    return;
+  }
+  
   cron.schedule('0 * * * *', () => {
     processDueTransactions();
   });

@@ -58,6 +58,11 @@ router.delete('/:id', async (req, res) => {
 
 // Manual Trigger (For testing purposes)
 router.post('/trigger', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   try {
     await processDueTransactions();
     res.json({ message: 'Recurring transactions processed' });

@@ -1,48 +1,92 @@
-# 🚀 Deployment Guide
+# 🚀 Deployment Guide (Vercel & Supabase)
 
-This project is designed to be deployed using modern cloud platforms. We recommend **Render** for the Backend & Database, and **Vercel** for the Frontend.
+This project is deployed using a **Serverless Architecture**.
+*   **Database:** Supabase (PostgreSQL)
+*   **Backend & Frontend:** Vercel (Monorepo hosting)
 
-## 1. Backend & Database (Render)
+---
 
-We will use [Render.com](https://render.com) because it offers a free tier for both Node.js web services and PostgreSQL databases.
+## 1. Database Setup (Supabase)
 
-### Step 1: Create PostgreSQL Database
-1.  Sign up/Log in to Render.
-2.  Click **New +** -> **PostgreSQL**.
-3.  Name: `finance-dashboard-db`.
-4.  Region: Closest to you (e.g., Singapore).
-5.  Plan: **Free**.
-6.  Click **Create Database**.
-7.  **IMPORTANT:** Copy the `Internal Database URL` (for internal use) and `External Database URL` (for local access if needed).
+1.  **Create Project:**
+    *   Go to [supabase.com](https://supabase.com) and create a **New Project**.
+    *   Set a strong **Database Password**.
 
-### Step 2: Deploy API
-1.  Click **New +** -> **Web Service**.
-2.  Connect your GitHub repository.
-3.  **Root Directory:** `apps/api`.
-4.  **Environment:** `Node`.
-5.  **Build Command:** `npm install && npx prisma generate && npm run build`.
-6.  **Start Command:** `npm run start`.
-7.  **Environment Variables:**
-    *   `DATABASE_URL`: Paste the `Internal Database URL` from Step 1.
-    *   `JWT_SECRET`: Generate a random string (e.g., ranompassword123).
-    *   `PORT`: `10000` (Render's default).
-8.  Click **Create Web Service**.
+2.  **Get Connection String:**
+    *   Click **Connect** (top right) -> **ORMs** -> **Prisma**.
+    *   **Copy the URI**.
+    *   *Tip:* Use the "Direct Connection" (Port 5432) string for `DATABASE_URL`.
+        `postgresql://postgres.xxxx:[YOUR-PASSWORD]@aws-0-region.db.supabase.com:5432/postgres`
 
-## 2. Frontend (Vercel)
+---
 
-1.  Sign up/Log in to [Vercel](https://vercel.com).
-2.  Click **Add New...** -> **Project**.
-3.  Import your GitHub repository.
-4.  **Root Directory:** Edit and select `apps/web`.
-5.  **Build Settings:** Vercel usually detects Vite automatically.
-    *   Build Command: `npm run build`
-    *   Output Directory: `dist`
-6.  **Environment Variables:**
-    *   `VITE_API_URL`: The URL of your Render Backend (e.g., `https://finance-dashboard-api.onrender.com`).
-7.  Click **Deploy**.
+## 2. Deploying (Vercel)
 
-## 3. Final Polish
+We will deploy both the Frontend and Backend to Vercel.
 
-Once both are live:
-1.  Update the `VITE_API_URL` in Vercel if you didn't have the backend URL ready during setup.
-2.  Test the full flow: Register -> Login -> Create Transaction.
+### Step 1: Import Project
+1.  Go to [vercel.com](https://vercel.com) -> **Add New...** -> **Project**.
+2.  Import your GitHub repository.
+
+### Step 2: Configure Backend (API)
+Since this is a monorepo, you can deploy the `apps/api` folder as a separate project or configure the root project.
+**Recommended:** Deploy `apps/api` as a standalone Vercel project first.
+
+1.  **Root Directory:** Select `apps/api`.
+2.  **Environment Variables:**
+    *   `DATABASE_URL`: Your Supabase URI.
+    *   `JWT_SECRET`: Random string.
+    *   `CRON_SECRET`: Random string (for securing the scheduled tasks).
+3.  **Deploy**.
+4.  **Copy the Domain:** e.g., `https://finance-dashboard-api.vercel.app`.
+
+### Step 3: Configure Frontend (Web)
+
+1.  Go back to Dashboard, import the repo **again** (or add new project).
+2.  **Root Directory:** Select `apps/web`.
+3.  **Environment Variables:**
+    *   `VITE_API_URL`: Paste the **Backend URL** from Step 2.
+4.  **Deploy**.
+
+---
+
+## 3. Updating / Redeploying
+
+Since Vercel is connected to your Git repository, **deploying updates is as simple as pushing your code**.
+
+1.  **Commit your changes** locally:
+    ```bash
+    git add .
+    git commit -m "Fix: Add postinstall script and export app for Vercel"
+    ```
+2.  **Push to GitHub**:
+    ```bash
+    git push origin main
+    ```
+3.  Vercel will detect the new commit and **automatically start a new deployment**.
+4.  You can monitor the build status in your Vercel Dashboard.
+
+---
+
+## 3. Configuring Cron Jobs (Recurring Transactions)
+
+To ensure recurring transactions work (e.g., monthly subscriptions):
+
+1.  Go to your **Backend Project** in Vercel.
+2.  Go to **Settings** -> **Cron Jobs**.
+3.  You should see `/api/recurring/trigger` scheduled.
+4.  **Important:** For the Cron Job to authorize correctly, Vercel automatically handles trusted requests for internal cron jobs if configured, or you can invoke it manually.
+5.  *Self-Correction:* Our code checks for `Authorization: Bearer [CRON_SECRET]`.
+    *   In Vercel **Settings** -> **Cron Jobs**, you might need to ensure the request headers include valid auth if you enforced it strictly.
+    *   *Alternative:* If using Vercel's native Cron, you can relax the `CRON_SECRET` check to also allow requests where `req.headers['user-agent']` contains `vercel-cron`.
+
+---
+
+## Troubleshooting
+
+### "Prisma Client could not be generated"
+*   Ensure in `apps/api/package.json`, the `postinstall` script runs `prisma generate`.
+    *   Command: `npm install && npx prisma generate`
+
+### "Function Timeout"
+*   Serverless functions have a timeout (usually 10s-60s). Ensure your database is in the same region as your Vercel deployment (e.g., api in `us-east-1` -> Supabase in `us-east-1`).
