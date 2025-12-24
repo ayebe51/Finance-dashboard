@@ -101,7 +101,13 @@ const Notifications: React.FC = () => {
                                         </div>
                                     </div>
                                     <label className="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" aria-label="Toggle Product Announcements" className="sr-only peer" defaultChecked />
+                                        <input 
+                                            type="checkbox" 
+                                            aria-label="Toggle Product Announcements" 
+                                            className="sr-only peer" 
+                                            checked={notifications.productAnnouncements}
+                                            onChange={() => handleToggle('productAnnouncements')}
+                                        />
                                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                                     </label>
                                 </div>
@@ -120,7 +126,7 @@ const Notifications: React.FC = () => {
                                         </div>
                                     </div>
                                     <label className="relative inline-flex items-center cursor-not-allowed">
-                                        <input type="checkbox" aria-label="Toggle Security Alerts" className="sr-only peer" disabled defaultChecked />
+                                        <input type="checkbox" aria-label="Toggle Security Alerts" className="sr-only peer" disabled checked={true} />
                                         <div className="w-11 h-6 bg-gray-200 rounded-full dark:bg-gray-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-gray-400 after:rounded-full after:h-5 after:w-5 dark:border-gray-600 peer-checked:bg-primary/50"></div>
                                     </label>
                                 </div>
@@ -151,7 +157,14 @@ const Notifications: React.FC = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-center">
-                                                <input aria-label="In-App Notification" title="In-App Notification" type="checkbox" className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800" defaultChecked />
+                                                <input 
+                                                    aria-label="In-App Notification" 
+                                                    title="In-App Notification" 
+                                                    type="checkbox" 
+                                                    className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800" 
+                                                    checked={notifications.expenseReports}
+                                                    onChange={() => handleToggle('expenseReports')}
+                                                />
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <input aria-label="Email Notification" title="Email Notification" type="checkbox" className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800" defaultChecked />
@@ -168,7 +181,14 @@ const Notifications: React.FC = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-center">
-                                                <input aria-label="In-App Notification" title="In-App Notification" type="checkbox" className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800" defaultChecked />
+                                                <input 
+                                                    aria-label="In-App Notification" 
+                                                    title="In-App Notification" 
+                                                    type="checkbox" 
+                                                    className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800" 
+                                                    checked={notifications.invoiceApprovals}
+                                                    onChange={() => handleToggle('invoiceApprovals')}
+                                                />
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <input aria-label="Email Notification" title="Email Notification" type="checkbox" className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800" />
@@ -194,7 +214,13 @@ const Notifications: React.FC = () => {
                                             </div>
                                         </div>
                                         <label className="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" aria-label="Toggle Budget Limits" className="sr-only peer" defaultChecked />
+                                            <input 
+                                                type="checkbox" 
+                                                aria-label="Toggle Budget Limits" 
+                                                className="sr-only peer" 
+                                                checked={notifications.budgetLimits}
+                                                onChange={() => handleToggle('budgetLimits')}
+                                            />
                                             <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                                         </label>
                                     </div>
@@ -217,7 +243,13 @@ const Notifications: React.FC = () => {
                                             </div>
                                         </div>
                                         <label className="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" aria-label="Toggle Large Transactions" className="sr-only peer" defaultChecked />
+                                            <input 
+                                                type="checkbox" 
+                                                aria-label="Toggle Large Transactions" 
+                                                className="sr-only peer" 
+                                                checked={notifications.largeTransactions}
+                                                onChange={() => handleToggle('largeTransactions')}
+                                            />
                                             <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                                         </label>
                                     </div>
@@ -252,7 +284,13 @@ const Notifications: React.FC = () => {
                                         <option>Peringatan Instan</option>
                                     </select>
                                     <label className="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" aria-label="Toggle Payment Reminders" className="sr-only peer" defaultChecked />
+                                        <input 
+                                            type="checkbox" 
+                                            aria-label="Toggle Payment Reminders" 
+                                            className="sr-only peer" 
+                                            checked={notifications.paymentReminders}
+                                            onChange={() => handleToggle('paymentReminders')}
+                                        />
                                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                                     </label>
                                 </div>
@@ -267,7 +305,7 @@ const Notifications: React.FC = () => {
                                 </p>
                                 <div className="flex gap-3 w-full sm:w-auto justify-end">
                                     <button className="px-5 py-2 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#23482f] transition-colors">Batal</button>
-                                    <button className="px-6 py-2 rounded-lg text-sm font-bold bg-primary text-[#0a160f] hover:bg-[#25d05f] transition-colors shadow-lg shadow-green-900/20">Simpan Preferensi</button>
+                                    <button onClick={handleSave} className="px-6 py-2 rounded-lg text-sm font-bold bg-primary text-[#0a160f] hover:bg-[#25d05f] transition-colors shadow-lg shadow-green-900/20">Simpan Preferensi</button>
                                 </div>
                             </div>
                         </div>

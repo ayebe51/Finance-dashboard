@@ -9,6 +9,10 @@ const Categories: React.FC = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'EXPENSE' | 'INCOME'>('EXPENSE');
+    
+    // Filter categories based on active tab
+    const filteredCategories = categories.filter(category => category.type === activeTab);
 
     useEffect(() => {
         loadCategories();
@@ -84,11 +88,17 @@ const Categories: React.FC = () => {
                 <div className="flex flex-col rounded-xl bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark shadow-sm overflow-hidden">
                     {/* Tabs */}
                     <div className="flex border-b border-slate-200 dark:border-border-dark">
-                        <button className="flex-1 md:flex-none md:w-48 flex items-center justify-center py-4 border-b-[3px] border-primary bg-primary/5 dark:bg-transparent transition-colors">
-                            <p className="text-primary text-sm font-bold leading-normal tracking-[0.015em]">Pengeluaran</p>
+                        <button 
+                            onClick={() => setActiveTab('EXPENSE')}
+                            className={`flex-1 md:flex-none md:w-48 flex items-center justify-center py-4 border-b-[3px] transition-colors ${activeTab === 'EXPENSE' ? 'border-primary bg-primary/5 dark:bg-transparent' : 'border-transparent hover:bg-slate-50 dark:hover:bg-surface-dark'}`}
+                        >
+                            <p className={`text-sm font-bold leading-normal tracking-[0.015em] ${activeTab === 'EXPENSE' ? 'text-primary' : 'text-slate-500 dark:text-text-secondary'}`}>Pengeluaran</p>
                         </button>
-                        <button className="flex-1 md:flex-none md:w-48 flex items-center justify-center py-4 border-b-[3px] border-transparent hover:bg-slate-50 dark:hover:bg-surface-dark transition-colors">
-                            <p className="text-slate-500 dark:text-text-secondary text-sm font-bold leading-normal tracking-[0.015em]">Pemasukan</p>
+                        <button 
+                            onClick={() => setActiveTab('INCOME')}
+                            className={`flex-1 md:flex-none md:w-48 flex items-center justify-center py-4 border-b-[3px] transition-colors ${activeTab === 'INCOME' ? 'border-primary bg-primary/5 dark:bg-transparent' : 'border-transparent hover:bg-slate-50 dark:hover:bg-surface-dark'}`}
+                        >
+                            <p className={`text-sm font-bold leading-normal tracking-[0.015em] ${activeTab === 'INCOME' ? 'text-primary' : 'text-slate-500 dark:text-text-secondary'}`}>Pemasukan</p>
                         </button>
                     </div>
 
@@ -104,10 +114,10 @@ const Categories: React.FC = () => {
                     <div className="flex flex-col divide-y divide-slate-200 dark:divide-border-dark">
                         {loading ? (
                             <div className="p-8 text-center text-slate-500">Loading categories...</div>
-                        ) : categories.length === 0 ? (
-                            <div className="p-8 text-center text-slate-500">No categories found.</div>
+                        ) : filteredCategories.length === 0 ? (
+                            <div className="p-8 text-center text-slate-500">No {activeTab.toLowerCase()} categories found.</div>
                         ) : (
-                            categories.map((category) => (
+                            filteredCategories.map((category) => (
                                 <details key={category.id} className="group open:bg-slate-50/50 dark:open:bg-surface-dark/30 transition-colors">
                                     <summary className="flex cursor-pointer items-center justify-between p-4 md:px-6 hover:bg-slate-50 dark:hover:bg-surface-dark transition-colors select-none list-none [&::-webkit-details-marker]:hidden">
                                         <div className="flex items-center gap-4 w-full md:w-1/2">

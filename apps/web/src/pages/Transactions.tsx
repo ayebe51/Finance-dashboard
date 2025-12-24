@@ -21,6 +21,31 @@ const Transactions: React.FC = () => {
         description: ''
     });
 
+    // Client-side filtering state
+    const [filterType, setFilterType] = useState<string>('All');
+    const [searchQuery, setSearchQuery] = useState<string>('');
+
+    // Derived filtered transactions
+    const filteredTransactions = transactions.filter(t => {
+        // 1. Filter by Type/Status
+        if (filterType !== 'All') {
+            if (filterType === 'Income' && t.type !== 'INCOME') return false;
+            if (filterType === 'Expense' && t.type !== 'EXPENSE') return false;
+            if (filterType === 'Pending' && t.status !== 'PENDING') return false;
+        }
+        
+        // 2. Filter by Search Query (Description or Amount)
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            const matchDescription = t.description?.toLowerCase().includes(query);
+            const matchMerchant = t.merchant?.toLowerCase().includes(query);
+            const matchAmount = t.amount.toString().includes(query);
+            if (!matchDescription && !matchMerchant && !matchAmount) return false;
+        }
+
+        return true;
+    });
+
     useEffect(() => {
         loadTransactions();
     }, []);
@@ -143,10 +168,11 @@ const Transactions: React.FC = () => {
                                     ].map((tab) => (
                                         <button
                                             key={tab.id}
+                                            onClick={() => setFilterType(tab.id)}
                                             className={`flex items-center justify-center rounded-lg px-4 py-2 transition-all ${
-                                                // Simplified tab active check logic for demo since state isn't visible in snippet but assuming 'All' is default or state-based
-                                                 'bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-900 dark:text-white shadow-sm'
-                                                // In real app, check activeTab === tab.id
+                                                filterType === tab.id
+                                                    ? 'bg-primary text-[#112217] shadow-lg shadow-primary/20'
+                                                    : 'bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-900 dark:text-white shadow-sm hover:border-primary/50'
                                             }`}
                                         >
                                             <p className="text-sm font-bold leading-normal tracking-[0.015em]">{tab.label}</p>
@@ -161,6 +187,8 @@ const Transactions: React.FC = () => {
                                             <span className="material-symbols-outlined text-[20px]">search</span>
                                         </div>
                                         <input
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
                                             className="block h-10 w-full rounded-lg border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark py-2 pl-10 pr-3 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-text-secondary focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm"
                                             placeholder="Cari deskripsi atau ID..."
                                             type="text"
@@ -217,12 +245,12 @@ const Transactions: React.FC = () => {
                                              <tr>
                                                 <td colSpan={7} className="px-6 py-8 text-center text-slate-500">Memuat transaksi...</td>
                                             </tr>
-                                        ) : transactions.length === 0 ? (
+                                        ) : filteredTransactions.length === 0 ? (
                                             <tr>
                                                 <td colSpan={7} className="px-6 py-8 text-center text-slate-500">Tidak ada transaksi ditemukan.</td>
                                             </tr>
                                         ) : (
-                                            transactions.map((transaction) => (
+                                            filteredTransactions.map((transaction) => (
                                                 <tr key={transaction.id} className="group transition-colors hover:bg-slate-50 dark:hover:bg-surface-dark/50">
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-900 dark:text-white">
                                                         {new Date(transaction.date).toLocaleDateString('id-ID')}
@@ -310,7 +338,7 @@ const Transactions: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-text-secondary">
-                                    <span>1-10 dari 45</span>
+                                    <span>{filteredTransactions.length > 0 ? `1-${Math.min(filteredTransactions.length, 10)}` : '0'} dari {filteredTransactions.length}</span>
                                     <div className="flex items-center gap-1">
                                         <button
                                             className="flex h-8 w-8 items-center justify-center rounded text-slate-400 dark:text-white hover:bg-slate-100 dark:hover:bg-white/5 disabled:opacity-50"

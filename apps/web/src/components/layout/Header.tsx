@@ -1,10 +1,12 @@
-import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
     onOpenNotifications?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onOpenNotifications }) => {
+    const navigate = useNavigate();
+
     return (
         <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white backdrop-blur-md dark:bg-background-dark/80 dark:border-border-dark">
             <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 md:px-6">
@@ -33,6 +35,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenNotifications }) => {
                         <span className="material-symbols-outlined">notifications</span>
                     </button>
                     <button 
+                        onClick={() => navigate('/settings')}
                         title="Settings"
                         aria-label="Settings"
                         className="flex size-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 dark:text-text-secondary dark:hover:bg-border-dark"

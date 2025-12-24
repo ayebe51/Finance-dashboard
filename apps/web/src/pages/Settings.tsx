@@ -7,6 +7,24 @@ import { useNavigate } from 'react-router-dom';
 const Settings: React.FC = () => {
     const navigate = useNavigate();
 
+
+
+    const [companyName, setCompanyName] = React.useState('FinancePro Solutions Ltd.');
+    const [taxId, setTaxId] = React.useState('');
+
+    React.useEffect(() => {
+        const savedName = localStorage.getItem('companyName');
+        const savedTaxId = localStorage.getItem('taxId');
+        if (savedName) setCompanyName(savedName);
+        if (savedTaxId) setTaxId(savedTaxId);
+    }, []);
+
+    const handleSave = () => {
+        localStorage.setItem('companyName', companyName);
+        localStorage.setItem('taxId', taxId);
+        alert('Pengaturan berhasil disimpan!');
+    };
+
     return (
         <div className="flex h-screen w-full bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white overflow-hidden">
             {/* Settings Sidebar - Specific to this page as per HTML */}
@@ -41,12 +59,12 @@ const Settings: React.FC = () => {
                         <span className="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">notifications</span>
                         <span className="text-sm font-medium">Notifikasi</span>
                     </a>
-                    <a className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-all group" href="#">
-                        <span className="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">description</span>
+                    <a className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-all group" href="/audit-log">
+                        <span className="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">history</span>
                         <span className="text-sm font-medium">Log Audit</span>
                     </a>
-                    <a className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-all group" href="#">
-                        <span className="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">desktop_windows</span>
+                    <a className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-all group" href="/display-settings">
+                        <span className="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">palette</span>
                         <span className="text-sm font-medium">Tampilan</span>
                     </a>
                 </nav>
@@ -120,11 +138,23 @@ const Settings: React.FC = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <label className="flex flex-col gap-2">
                                     <span className="text-sm font-medium text-gray-700 dark:text-slate-300">Nama Perusahaan</span>
-                                    <input aria-label="Nama Perusahaan" title="Nama Perusahaan" className="w-full bg-white dark:bg-surface-dark border border-gray-200 dark:border-white/10 rounded-lg h-12 px-4 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder-gray-500 dark:placeholder-slate-500 transition-all shadow-sm dark:shadow-none" placeholder="cth. PT Maju Bersama" type="text" defaultValue="FinancePro Solutions Ltd." />
+                                    <input 
+                                        value={companyName}
+                                        onChange={(e) => setCompanyName(e.target.value)}
+                                        className="w-full bg-white dark:bg-surface-dark border border-gray-200 dark:border-white/10 rounded-lg h-12 px-4 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder-gray-500 dark:placeholder-slate-500 transition-all shadow-sm dark:shadow-none" 
+                                        placeholder="cth. PT Maju Bersama" 
+                                        type="text" 
+                                    />
                                 </label>
                                 <label className="flex flex-col gap-2">
                                     <span className="text-sm font-medium text-gray-700 dark:text-slate-300">ID Pajak / NPWP</span>
-                                    <input aria-label="ID Pajak atau NPWP" title="ID Pajak atau NPWP" className="w-full bg-white dark:bg-surface-dark border border-gray-200 dark:border-white/10 rounded-lg h-12 px-4 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder-gray-500 dark:placeholder-slate-500 transition-all shadow-sm dark:shadow-none" placeholder="cth. 12.345.678.9-000.000" type="text" />
+                                    <input 
+                                        value={taxId}
+                                        onChange={(e) => setTaxId(e.target.value)}
+                                        className="w-full bg-white dark:bg-surface-dark border border-gray-200 dark:border-white/10 rounded-lg h-12 px-4 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary placeholder-gray-500 dark:placeholder-slate-500 transition-all shadow-sm dark:shadow-none" 
+                                        placeholder="cth. 12.345.678.9-000.000" 
+                                        type="text" 
+                                    />
                                 </label>
                             </div>
                         </section>
@@ -196,7 +226,10 @@ const Settings: React.FC = () => {
                     <button className="px-6 h-12 rounded-lg text-gray-500 dark:text-slate-300 font-semibold hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-colors" onClick={() => navigate('/')}>
                         Batalkan
                     </button>
-                    <button className="px-8 h-12 rounded-lg bg-primary text-[#0a160f] font-bold shadow-lg hover:bg-[#25d660] hover:shadow-primary/30 transition-all flex items-center gap-2">
+                    <button 
+                        onClick={handleSave}
+                        className="px-8 h-12 rounded-lg bg-primary text-[#0a160f] font-bold shadow-lg hover:bg-[#25d660] hover:shadow-primary/30 transition-all flex items-center gap-2"
+                    >
                         <span className="material-symbols-outlined text-[20px]">save</span>
                         Simpan Perubahan
                     </button>

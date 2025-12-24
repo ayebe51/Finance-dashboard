@@ -86,28 +86,6 @@ const Login: React.FC = () => {
                     </div>
                 </form>
 
-                {/* Diagnostic Section */}
-                <div className="mt-8 border-t pt-6 text-center">
-                    <p className="text-xs text-gray-500 mb-2">Troubleshooting Tools</p>
-                    <button
-                        onClick={async () => {
-                            try {
-                                alert(`Checking API connection...`);
-                                const res = await api.get('/health-db');
-                                alert(`Success! DB Status: ${JSON.stringify(res)}`);
-                            } catch (e: any) {
-                                alert(`Error: ${e.response?.data?.message || e.message}`);
-                            }
-                        }}
-                        type="button"
-                        className="text-xs bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-gray-700"
-                    >
-                        Test Server & DB Connection
-                    </button>
-                    <p className="text-[10px] text-gray-400 mt-2">
-                        API URL: {import.meta.env.VITE_API_URL || '(default)'}
-                    </p>
-                </div>
             </div>
         </div>
     );

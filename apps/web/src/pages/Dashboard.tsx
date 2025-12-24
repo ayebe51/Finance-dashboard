@@ -1,7 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
 import { api } from '../lib/api';
 import { formatCurrency } from '../utils/formatUtils';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface DashboardStats {
     income: number;
@@ -16,7 +35,13 @@ interface ExpenseBreakdownItem {
     name: string;
     value: number;
     percentage: number;
-    color?: string; // Optional for UI mapping
+    color?: string;
+}
+
+interface MonthlyStat {
+    name: string;
+    income: number;
+    expense: number;
 }
 
 /* Helper to map category names to colors - could be dynamic later */
@@ -24,8 +49,6 @@ const getCategoryColorClass = (index: number) => {
     const classes = ['bg-[#2bee6c]', 'bg-[#34d399]', 'bg-[#059669]', 'bg-[#9ca3af]', 'bg-[#f59e0b]'];
     return classes[index % classes.length];
 };
-
-
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -39,15 +62,23 @@ const Dashboard: React.FC = () => {
     });
     const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
     const [expenseBreakdown, setExpenseBreakdown] = useState<ExpenseBreakdownItem[]>([]);
+    const [monthlyStats, setMonthlyStats] = useState<MonthlyStat[]>([]);
+    const [upcomingPayments, setUpcomingPayments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const data = await api.get('/dashboard');
-                setStats(data.stats);
-                setRecentTransactions(data.recentTransactions);
-                setExpenseBreakdown(data.expenseBreakdown);
+                const [dashboardData, recurringData] = await Promise.all([
+                    api.get('/dashboard'),
+                    api.get('/recurring')
+                ]);
+                
+                setStats(dashboardData.stats);
+                setRecentTransactions(dashboardData.recentTransactions);
+                setExpenseBreakdown(dashboardData.expenseBreakdown);
+                setMonthlyStats(dashboardData.monthlyStats || []);
+                setUpcomingPayments(recurringData.data || []);
             } catch (error) {
                 console.error('Failed to load dashboard data', error);
             } finally {
@@ -191,8 +222,58 @@ const Dashboard: React.FC = () => {
                             </span>
                         </div>
                     </div>
-                    <div className="h-64 w-full flex items-center justify-center text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-black/10 rounded-lg border border-dashed border-gray-200 dark:border-border-dark">
-                        <p>Grafik akan segera hadir dengan integrasi Recharts</p>
+                    <div className="h-64 w-full">
+                        <Bar 
+                            options={{
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false,
+                                    },
+                                    tooltip: {
+                                        mode: 'index',
+                                        intersect: false,
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        grid: {
+                                            color: 'rgba(200, 200, 200, 0.1)',
+                                        },
+                                        ticks: {
+                                            color: '#9ca3af'
+                                        }
+                                    },
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        },
+                                        ticks: {
+                                            color: '#9ca3af'
+                                        }
+                                    }
+                                }
+                            }} 
+                            data={{
+                                labels: monthlyStats.map(s => s.name),
+                                datasets: [
+                                    {
+                                        label: 'Pemasukan',
+                                        data: monthlyStats.map(s => s.income),
+                                        backgroundColor: '#25cc5d',
+                                        borderRadius: 4,
+                                    },
+                                    {
+                                        label: 'Pengeluaran',
+                                        data: monthlyStats.map(s => s.expense),
+                                        backgroundColor: '#6b7280',
+                                        borderRadius: 4,
+                                    },
+                                ],
+                            }} 
+                        />
                     </div>
                 </div>
 
@@ -302,28 +383,30 @@ const Dashboard: React.FC = () => {
                             </button>
                         </div>
                         <div className="space-y-4">
-                            {/* Payment Item */}
-                            <div className="flex items-center gap-4 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-colors hover:border-primary/50 dark:border-border-dark dark:bg-black/20">
-                                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-border-dark dark:bg-[#162b1e]">
-                                    <div className="text-xs font-bold text-gray-600 dark:text-gray-300">AD</div>
+                            {upcomingPayments.length > 0 ? (
+                                upcomingPayments.slice(0, 3).map((payment) => (
+                                    <div key={payment.id} className="flex items-center gap-4 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-colors hover:border-primary/50 dark:border-border-dark dark:bg-black/20">
+                                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-border-dark dark:bg-[#162b1e]">
+                                            <div className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                                                {payment.category?.name.substring(0, 2).toUpperCase() || 'TX'}
+                                            </div>
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate text-sm font-bold text-gray-900 dark:text-white">{payment.description}</p>
+                                            <p className="text-xs text-gray-500 dark:text-text-secondary">
+                                                Jatuh Tempo: {new Date(payment.nextRun).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white">
+                                            {formatCurrency(payment.amount)}
+                                        </p>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                                    Tidak ada tagihan mendatang.
                                 </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-bold text-gray-900 dark:text-white">Adobe Creative Cloud</p>
-                                    <p className="text-xs font-medium text-red-500">Jatuh Tempo Besok</p>
-                                </div>
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">Rp 850.000</p>
-                            </div>
-                            {/* Payment Item */}
-                            <div className="flex items-center gap-4 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-colors hover:border-primary/50 dark:border-border-dark dark:bg-black/20">
-                                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-border-dark dark:bg-[#162b1e]">
-                                    <div className="text-xs font-bold text-gray-600 dark:text-gray-300">Kan</div>
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-bold text-gray-900 dark:text-white">Sewa Kantor - Nov</p>
-                                    <p className="text-xs text-gray-500 dark:text-text-secondary">Jatuh Tempo 5 Hari</p>
-                                </div>
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">Rp 5.000.000</p>
-                            </div>
+                            )}
                         </div>
                         <button className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 py-2 text-sm font-medium text-gray-500 transition-colors hover:border-primary hover:text-primary dark:border-border-dark">
                             <span className="material-symbols-outlined text-[18px]">add_circle</span>
