@@ -30,6 +30,26 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
+app.get('/api/health-db', async (req, res) => {
+    try {
+        // Import dynamically to avoid circular dependency issues if any, 
+        // or better yet, just use the import from where it should be.
+        // But app.ts doesn't import prisma yet. Let's rely on a fresh import or passed instance.
+        // Actually, let's just use the shared instance.
+        // We need to import it at top of file, but tool instruction is for this block.
+        // I will trust the user to add the import or I will do it in a separate block if needed.
+        // Wait, I cannot add import at top with this tool call if I target lines 29-31.
+        // I will assume I can edit the top separately or just use valid code here.
+        // Let's modify the top first to import prisma? No, safer to just try/catch here.
+        const { default: prisma } = await import('./prisma');
+        await prisma.$queryRaw`SELECT 1`;
+        res.json({ status: 'connected', timestamp: new Date() });
+    } catch (error: any) {
+        console.error('DB Connection Failed:', error);
+        res.status(500).json({ status: 'error', message: error.message });
+    }
+});
+
 app.use('/api/auth', authRouter);
 app.use('/api/transactions', transactionRouter);
 app.use('/api/categories', categoriesRouter);
