@@ -92,7 +92,7 @@ const Login: React.FC = () => {
                     <button
                         onClick={async () => {
                             try {
-                                alert(`Checking API at: ${api.defaults.baseURL}`);
+                                alert(`Checking API connection...`);
                                 const res = await api.get('/health-db');
                                 alert(`Success! DB Status: ${JSON.stringify(res)}`);
                             } catch (e: any) {
